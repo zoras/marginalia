@@ -237,6 +237,12 @@ class MarginaliaTest < MiniTest::Test
       assert_match %r{/\*socket:marginalia_socket}, @queries.first
       pool.spec.unstub(:config)
     end
+
+    def test_sql_comment_injection
+      Marginalia.application_name = "a sketchy comment */"
+      ActiveRecord::Base.connection.execute "select id from posts"
+      assert_match %r{select id from posts /\*application:a sketchy comment \*/$}, @queries.first
+    end
   end
 
   if request_id_available?
