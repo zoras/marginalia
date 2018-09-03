@@ -89,7 +89,12 @@ module Marginalia
       end
 
       def self.sidekiq_job
-        marginalia_job["class"] if marginalia_job
+        return unless marginalia_job
+        if marginalia_job.is_a?(Hash)
+          marginalia_job["class"]
+        elsif marginalia_job.is_a?(ActiveJob::Base)
+          marginalia_job.arguments[0]
+        end
       end
 
       def self.line
